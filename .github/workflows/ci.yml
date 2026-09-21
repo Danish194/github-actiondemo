@@ -1,4 +1,4 @@
-name: AWS Test
+name: Node.js Docker CI
 
 on:
   push:
@@ -6,13 +6,29 @@ on:
       - master
 
 jobs:
-  aws-test:
+  build:
     runs-on: ubuntu-latest
 
     steps:
+      # 1. Download our GitHub code
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # 2. Install Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # 3. Install project dependencies
+      - name: Install dependencies
+        run: npm install
+
+      # 4. Run tests
+      - name: Run tests
+        run: npm test
+
+      # 5. Connect GitHub Actions to AWS
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -20,5 +36,22 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-north-1
 
+      # 6. Check AWS connection
       - name: Check AWS identity
         run: aws sts get-caller-identity
+
+      # 7. Login Docker to Amazon ECR
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      # 8. Build Docker image
+      - name: Build Docker image
+        run: docker build -t simple-web-app:latest .
+
+      # 9. Give image its ECR name
+      - name: Tag Docker image
+        run: docker tag simple-web-app:latest 966127383941.dkr.ecr.eu-north-1.amazonaws.com/simple-web-app:latest
+
+      # 10. Push image to ECR
+      - name: Push Docker image to ECR
+        run: docker push 966127383941.dkr.ecr.eu-north-1.amazonaws.com/simple-web-app:latest
