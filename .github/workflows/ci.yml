@@ -46,12 +46,11 @@ jobs:
 
       # 8. Build Docker image
       - name: Build Docker image
-        run: docker build -t simple-web-app:latest .
+        run: docker build -t my-node-app:latest .
 
       # 9. Give image its ECR name
       - name: Tag Docker image
-        run: docker tag simple-web-app:latest 966127383941.dkr.ecr.eu-north-1.amazonaws.com/simple-web-app:latest
-
+        run: docker tag my-node-app:latest 966127383941.dkr.ecr.eu-north-1.amazonaws.com/my-node-app:latest
       # 10. Push image to ECR
       - name: Push Docker image to ECR
-        run: docker push 966127383941.dkr.ecr.eu-north-1.amazonaws.com/simple-web-app:latest
+        run: docker push 966127383941.dkr.ecr.eu-north-1.amazonaws.com/my-node-app:latest
